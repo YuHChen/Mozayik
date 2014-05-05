@@ -19,9 +19,10 @@ class Canvas(QWidget):
         super(Canvas, self).__init__(parent)
         self.setAcceptDrops(True)
 
-        self.setLayout(CanvasLayout())
+        self.setLayout(CanvasLayout(self,11,5,5))
 
         self.tileList = []
+        self.curTile = None
 
         self.movePoint = QPoint(-1,-1)
 
@@ -33,6 +34,9 @@ class Canvas(QWidget):
     def mousePressEvent(self, event):
         print("mouse click on canvas")
         print("canvas size: {}".format(self.size()))
+        for tile in self.tileList:
+            if tile.underMouse():
+                self.curTile = tile
         
     def mouseReleaseEvent(self, event):
         print("mouse release event on canvas")
@@ -75,6 +79,8 @@ class Canvas(QWidget):
                 event.accept()
         elif actions & Qt.MoveAction:
             print("move tile")
+            targ = self.layout().itemAtPos(event.pos())
+            self.layout().swapWidgets(self.curTile, targ)
             event.acceptProposedAction()
             
         else:

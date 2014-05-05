@@ -36,12 +36,26 @@ class CanvasLayout(QLayout):
         else:
             return None
 
+    def itemAtPos(self, pos):
+        for item in self.itemList:
+            if item.geometry().contains(pos):
+                return item.widget()
+        return None
+
     def takeAt(self, index):
         if index >= 0 and index < len(self.itemList):
             return self.itemList.pop(index)
         else:
             return None
         
+    def swapWidgets(self, item1, item2):
+        pos1 = item1.pos()
+        item1.geometry().moveTopLeft(item2.pos())
+        item2.geometry().moveTopLeft(pos1)
+        pix1 = item1.pixmap()
+        item1.setPixmap(item2.pixmap())
+        item2.setPixmap(pix1)
+
     def expandingDirections(self):
         return Qt.Vertical | Qt.Horizontal
 
@@ -81,24 +95,24 @@ class CanvasLayout(QLayout):
             wid = item.widget()
             if x == effectiveRect.x() and y == effectiveRect.y():
                 lineHeight = item.sizeHint().height()
-            #spaceX = self.horizontalSpacing()
-            #if spaceX == -1:
-                #spaceX = wid.style().layoutSpacing(QSizePolicy.Label, QSizePolicy.Label, Qt.Horizontal)
-            #spaceY = self.verticalSpacing()
-            #if spaceY == -1:
-                #spaceY = wid.style().layoutSpacing(QSizePolicy.Label, QSizePolicy.Label, Qt.Vertical)
-            nextX = x + item.sizeHint().width() #+ spaceX
-            if nextX > effectiveRect.right():
+            spaceX = self.horizontalSpacing()
+            if spaceX == -1:
+                spaceX = wid.style().layoutSpacing(QSizePolicy.Label, QSizePolicy.Label, Qt.Horizontal)
+            spaceY = self.verticalSpacing()
+            if spaceY == -1:
+                spaceY = wid.style().layoutSpacing(QSizePolicy.Label, QSizePolicy.Label, Qt.Vertical)
+            nextX = x + item.sizeHint().width() + spaceX
+            if nextX - spaceX > effectiveRect.right():
                 x = effectiveRect.x()
-                y = y + lineHeight
-                nextX = x + item.sizeHint().width()
+                y = y + lineHeight + spaceY
+                nextX = x + item.sizeHint().width() + spaceX
                 lineHeight = item.sizeHint().height()
 
             if not testOnly:
                 item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
 
             x = nextX
-            #lineHeight = max(lineHeight, item.sizeHint().height())
+            lineHeight = max(lineHeight, item.sizeHint().height())
 
         return y + lineHeight - rect.y() + bottom
 
