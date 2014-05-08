@@ -15,19 +15,22 @@ class Tile(QLabel):
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.name = fileName
 
-        size = QSize(self.pixmap().width(),self.pixmap().height())
-        self.setMaximumSize(size)
-        self.setMinimumSize(size)
+        #size = QSize(self.pixmap().width(),self.pixmap().height())
+        #self.setMaximumSize(size)
+        #self.setMinimumSize(size)
 
+        #mouse press event 
         self.canCopy = False
         self.canMove = False
         self.canStretch = False
         self.isStretchingH = False
         self.isStretchingV = False
-    
         self.isMouseDown = False
         self.mousePosn = QPoint()
         self.mouseTime = QTime()
+
+        #layout
+        self.row = 0
 
     def __str__(self):
         return self.name
@@ -41,6 +44,9 @@ class Tile(QLabel):
     def __ne__(self,other):
         return not self == other
 
+    def __getattr__(self,name):
+        return self
+
     def setCanCopy(self, val):
         self.canCopy = val
         
@@ -50,14 +56,19 @@ class Tile(QLabel):
     def setCanStretch(self, val):
         self.canStretch = val
 
+    def setRow(self, val):
+        self.row = val
+
+    def getRow(self):
+        return self.row
+
     def sizeHint(self):
-        print("tile size hint")
         size = QSize(self.pixmap().width(),self.pixmap().height())
         return size
 
     def mousePressEvent(self, event):
         if(event.button() == Qt.LeftButton):
-            print("mouse left click at x:{} y:{}".format(event.pos().x(),event.pos().y()))
+            #print("mouse left click at x:{} y:{}".format(event.pos().x(),event.pos().y()))
             self.isMouseDown = True
             self.mousePosn = event.pos()
             self.mouseTime.start()
@@ -67,16 +78,16 @@ class Tile(QLabel):
                 x = self.size().width()
                 y = self.size().height()
                 if ex < 15 or ex > x-15: 
-                    print("can stretch horizontally")
+                    #print("can stretch horizontally")
                     self.isStretchingH = True
                 if ey < 15 or ey > y-15:
-                    print("can stretch vertically")
+                    #print("can stretch vertically")
                     self.isStretchingV = True
         event.ignore()
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self,event):
-        print("mouse release event on tile at x: {} y: {}".format(event.x(),event.y()))
+        #print("mouse release event on tile at x: {} y: {}".format(event.x(),event.y()))
         ex = event.pos().x()
         ey = event.pos().y()
         x = self.size().width()
@@ -102,15 +113,16 @@ class Tile(QLabel):
         else:
             size.setHeight(y)
 
-        print("cur size: {} resize: {}".format(self.size(),size))
-        #self.resize(size)
-        self.setPixmap(self.pixmap().scaled(size,Qt.IgnoreAspectRatio,Qt.SmoothTransformation))
-        print(self.pixmap().size())
-        print(QRect(self.pos(),size))
-        self.setGeometry(QRect(self.pos(),size))
-        print("cur size after resizing?: {}".format(self.size()))
-        self.isStretchingH = False
-        self.isStretchingV = False
+        if self.isStretchingH or self.isStretchingV:
+            #print("cur size: {} resize: {}".format(self.size(),size))
+            #self.resize(size)
+            self.setPixmap(self.pixmap().scaled(size,Qt.IgnoreAspectRatio,Qt.SmoothTransformation))
+            #print(self.pixmap().size())
+            #print(QRect(self.pos(),size))
+            self.setGeometry(QRect(self.pos(),size))
+            #print("cur size after resizing?: {}".format(self.size()))
+            self.isStretchingH = False
+            self.isStretchingV = False
             
 
     def mouseMoveEvent(self,event):

@@ -20,7 +20,6 @@ class Viewer(QWidget):
         
     def sizeHint(self):
         size = QSize(300, 200*len(self.tileList))
-        print("size hint: {}".format(size))
         return size
 
     #grab images with jpg, jpeg, and png extenstions
@@ -41,7 +40,7 @@ class Viewer(QWidget):
                 tile.setCanCopy(True)
                 self.tileList.append(tile)
         for tile in self.tileList:
-            picLayout.addWidget(tile)#, Qt.AlignCenter)
+            picLayout.addWidget(tile)
         return picLayout
 
     #set view to show images in choosen folder
@@ -60,10 +59,8 @@ class Viewer(QWidget):
                     #QMessageBox.information(self, "Error", "No folder path received.")
                     return
         
-        #workingDir = os.path.abspath(os.curdir)
         os.chdir(folderPath)
         picList = self.getPicList()
-        #os.chdir(workingDir)
         
         for tile in self.tileList:
             tile.deleteLater()
@@ -91,7 +88,6 @@ class Viewer(QWidget):
         folder = os.path.commonprefix(tilePaths)
         while(not os.path.isdir(folder)):
             folder = os.path.dirname(folder)
-        #workingDir = os.path.abspath(os.curdir)
         os.chdir(folder)
         tileNames = [os.path.basename(path) for path in tilePaths]
         print(tileNames)

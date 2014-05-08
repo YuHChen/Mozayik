@@ -2,6 +2,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from Tile import *
+
 class CanvasLayout(QLayout):
     def __init__(self, parent=None, margin=11, hSpacing=0, vSpacing=0):
         super(CanvasLayout, self).__init__(parent)
@@ -47,14 +49,21 @@ class CanvasLayout(QLayout):
             return self.itemList.pop(index)
         else:
             return None
-        
+
+    def delete(self, item):
+        for i in range(0, len(self.itemList)):
+            if id(item) == id(self.itemList[i].widget()):
+                self.takeAt(i).widget().close()
+                break
+        self.activate()
+
     def swapWidgets(self, item1, item2):
         pos1 = item1.pos()
         item1.geometry().moveTopLeft(item2.pos())
         item2.geometry().moveTopLeft(pos1)
-        pix1 = item1.pixmap()
+        temp = Tile(str(item1), item1.pixmap())
         item1.setPixmap(item2.pixmap())
-        item2.setPixmap(pix1)
+        item2.setPixmap(temp.pixmap())
 
     def expandingDirections(self):
         return Qt.Vertical | Qt.Horizontal
@@ -90,9 +99,11 @@ class CanvasLayout(QLayout):
         x = effectiveRect.x()
         y = effectiveRect.y()
         lineHeight = 0
+        row = 0
 
         for item in self.itemList:
             wid = item.widget()
+            wid.setRow(row)
             if x == effectiveRect.x() and y == effectiveRect.y():
                 lineHeight = item.sizeHint().height()
             spaceX = self.horizontalSpacing()
@@ -105,14 +116,29 @@ class CanvasLayout(QLayout):
             if nextX - spaceX > effectiveRect.right():
                 x = effectiveRect.x()
                 y = y + lineHeight + spaceY
+                row += 1
+                wid.setRow(row)
                 nextX = x + item.sizeHint().width() + spaceX
                 lineHeight = item.sizeHint().height()
 
+            geo = QRect(QPoint(x,y), item.sizeHint())
+            
+            for item2 in self.itemList[:len(self.itemList)-1]:
+                wid2 = item2.widget()
+                if x > effectiveRect.x():
+                    geo.translate(-spaceX, 0)
+                if wid2.getRow() == (wid.getRow()-1) and wid2.geometry().intersects(geo):
+                    dx = wid2.geometry().intersected(geo).width()
+                    dy = wid2.geometry().intersected(geo).height()
+                    geo.translate(0, dy + spaceY)
+                if  x > effectiveRect.x():
+                    geo.translate(spaceX, 0)
+
             if not testOnly:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+                item.setGeometry(geo)
 
             x = nextX
-            lineHeight = max(lineHeight, item.sizeHint().height())
+            lineHeight = min(lineHeight, item.sizeHint().height())
 
         return y + lineHeight - rect.y() + bottom
 
