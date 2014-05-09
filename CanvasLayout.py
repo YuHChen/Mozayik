@@ -61,9 +61,9 @@ class CanvasLayout(QLayout):
         pos1 = item1.pos()
         item1.geometry().moveTopLeft(item2.pos())
         item2.geometry().moveTopLeft(pos1)
-        temp = Tile(str(item1), item1.pixmap())
+        temp = QPixmap(item1.pixmap())
         item1.setPixmap(item2.pixmap())
-        item2.setPixmap(temp.pixmap())
+        item2.setPixmap(temp)
 
     def expandingDirections(self):
         return Qt.Vertical | Qt.Horizontal

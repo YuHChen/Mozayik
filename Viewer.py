@@ -90,7 +90,7 @@ class Viewer(QWidget):
             folder = os.path.dirname(folder)
         os.chdir(folder)
         tileNames = [os.path.basename(path) for path in tilePaths]
-        print(tileNames)
+        #print(tileNames)
         picLayout = self.makePicLayout(tileNames)
         self.layout().removeItem(self.layout())
         self.setLayout(picLayout)
