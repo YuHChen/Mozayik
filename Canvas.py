@@ -96,6 +96,9 @@ class Canvas(QWidget):
             targ = self.layout().itemAtPos(event.pos())
             if targ is not None:
                 self.layout().swapWidgets(self.curTile, targ)
+                temp = targ.getName()
+                targ.setName(self.curTile.getName())
+                self.curTile.setName(temp)
                 event.acceptProposedAction()
         else:
             event.ignore()

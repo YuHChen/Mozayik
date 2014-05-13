@@ -47,6 +47,12 @@ class Tile(QLabel):
     def __getattr__(self,name):
         return self
 
+    def getName(self):
+        return self.name
+
+    def setName(self, name):
+        self.name = name
+
     def setCanCopy(self, val):
         self.canCopy = val
         

@@ -2,8 +2,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from Tile import *
-
 class CanvasLayout(QLayout):
     def __init__(self, parent=None, margin=11, hSpacing=0, vSpacing=0):
         super(CanvasLayout, self).__init__(parent)
