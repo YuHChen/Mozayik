@@ -113,24 +113,35 @@ class CanvasLayout(QLayout):
             nextX = x + item.sizeHint().width() + spaceX
             if nextX - spaceX > effectiveRect.right():
                 x = effectiveRect.x()
-                y = y + lineHeight + spaceY
+                y = y + lineHeight# + spaceY
                 row += 1
                 wid.setRow(row)
                 nextX = x + item.sizeHint().width() + spaceX
                 lineHeight = item.sizeHint().height()
 
             geo = QRect(QPoint(x,y), item.sizeHint())
-            
+
+            unionRect = None
+
             for item2 in self.itemList[:len(self.itemList)-1]:
                 wid2 = item2.widget()
                 if x > effectiveRect.x():
                     geo.translate(-spaceX, 0)
                 if wid2.getRow() == (wid.getRow()-1) and wid2.geometry().intersects(geo):
-                    dx = wid2.geometry().intersected(geo).width()
-                    dy = wid2.geometry().intersected(geo).height()
-                    geo.translate(0, dy + spaceY)
+                    if unionRect is None:
+                        unionRect = wid2.geometry().intersected(geo)
+                    else:
+                        unionRect = unionRect.united(wid2.geometry().intersected(geo))
+                        #dx = wid2.geometry().intersected(geo).width()
+                        #dy = wid2.geometry().intersected(geo).height()
+                        #geo.translate(0, dy + spaceY)
                 if  x > effectiveRect.x():
                     geo.translate(spaceX, 0)
+
+            if unionRect is not None:
+                geo.translate(0, unionRect.height() + spaceY)
+            else:
+                geo.translate(0, spaceY)
 
             if not testOnly:
                 item.setGeometry(geo)
